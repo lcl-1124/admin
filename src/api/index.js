@@ -19,7 +19,7 @@ export const reqUserList = () => ajax(BASEURL + '/manage/user/list')
 // 5.删除用户
 export const reqDeleteUser = (userId) => ajax(BASEURL + '/manage/user/delete',{userId},'POST')
 // 6.获取一级或某个二级分类列表
-export const reqCategoryList = ({parentId}) => ajax(BASEURL + '/manage/category/list',{parentId})
+export const reqCategoryList = (parentId) => ajax(BASEURL + '/manage/category/list',{parentId})
 // 7.添加分类
 export const reqCategoryAdd = ({parentId,categoryName}) => ajax(BASEURL + '/manage/category/add',{parentId,categoryName},'POST')
 // 8.更新品类名称

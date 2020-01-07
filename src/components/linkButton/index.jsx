@@ -1,7 +1,7 @@
 /*
 链接按钮组件
 */
-import React,{Component} from 'react'
+import React from 'react'
 import './index.less'
 
 export default function LinkButton(props) {
