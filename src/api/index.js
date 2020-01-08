@@ -27,15 +27,20 @@ export const reqUpdateCategory = ({categoryId,categoryName}) => ajax(BASEURL + '
 // 9.根据分类ID获取分类
 export const reqCategoryInfo = (categoryId) => ajax(BASEURL + '/manage/category/info',{categoryId})
 // 10.获取商品分页列表
-export const reqProductList = ({pageNum,pageSize}) => ajax(BASEURL + '/manage/product/list',{pageNum,pageSize})
-// 11.根据ID/Name搜索产品分页列表
-export const reqSearchProduct = ({pageNum,pageSize,productName,productDesc}) => ajax(BASEURL + '/manage/product/search',{pageNum,pageSize,productName,productDesc})
+export const reqProductList = (pageNum,pageSize) => ajax(BASEURL + '/manage/product/list',{pageNum,pageSize})
+/*
+11.根据ID/Name搜索产品分页列表
+  productName 根据名称搜索
+  productDesc 根据描述搜索
+  productType: productName/productDesc
+*/ 
+export const reqSearchProduct = ({pageNum,pageSize,searchName,productType}) => ajax(BASEURL + '/manage/product/search',{pageNum,pageSize,[productType]:searchName})
 // 12.添加商品
 export const reqAddProduct = ({categoryId,pCategoryId,name,desc,price,detail,imgs}) => ajax(BASEURL + '/manage/product/add',{categoryId,pCategoryId,name,desc,price,detail,imgs},'POST')
 // 13.更新商品
 export const reqUpdateProduct = ({_id,categoryId,pCategoryId,name,desc,price,detail,imgs}) => ajax(BASEURL + '/manage/product/update',{_id,categoryId,pCategoryId,name,desc,price,detail,imgs},'POST')
 // 14.对商品进行上架/下架处理
-export const reqUpdateStatusProduct = ({productId,status}) => ajax(BASEURL + '/manage/product/updateStatus',{productId,status},'POST')
+export const reqUpdateStatusProduct = (productId,status) => ajax(BASEURL + '/manage/product/updateStatus',{productId,status},'POST')
 // 15.上传图片
 export const reqUploadImg = (image) => ajax(BASEURL + '/manage/img/upload',{image},'POST')
 // 16.删除图片

@@ -64,7 +64,7 @@ class LeftNav extends Component {
         拿到子菜单中与选中菜单项标识一致的
           判断是否存在，如果有则拿到当前菜单的标识
         */ 
-        const cItem = item.children.find((cItem) => cItem.key === path)
+        const cItem = item.children.find((cItem) => path.indexOf(cItem.key) === 0)
         
         if (cItem) {
           this.openKey = item.key
@@ -102,7 +102,11 @@ class LeftNav extends Component {
 
   render () {
     // 得到当前选中菜单项标识
-    const path = this.props.location.pathname;
+    let path = this.props.location.pathname;
+    if (path.indexOf('/product') === 0) { // String.proptype.indexOf(string)返回指定字符串在当前字符串中第一次出现的下标位置，没有找到则返回-1
+      // 证明当前是'/product'或其子路由
+      path = '/product';
+    }
     return (
       <div className='left-nav'>
         <Link to='/home' className='left-nav-header'>
