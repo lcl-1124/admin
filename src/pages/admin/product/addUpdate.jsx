@@ -1,5 +1,7 @@
 /*
 商品添加更新组件
+  1.子组件调用父组件方法：将父组件方法以函数属性的形式传递给自组件进行调用
+  2.父组件调用子组件方法：在父组件中通过ref得到子组件标签对象(也就是组件对象)，调用其方法
 */
 import React,{Component} from 'react'
 import {
@@ -9,14 +11,159 @@ import {
   Form,
   Button,
   Upload, // 上传
-  Cascader // 级联选择
+  Cascader, // 级联选择
+  message
 } from 'antd'
+
+import PicturesWall from './picturesWall'
 import LinkButton from '../../../components/linkButton'
-import './addUpdate.less'
+import { reqCategoryList } from "../../../api";
+
 const {Item} = Form;
 const { TextArea } = Input;
-export default class ProductAddUpdate extends Component {
+
+
+class ProductAddUpdate extends Component {
+
+  state = {
+    options: [],
+  };
+
+  constructor (props) {
+    super(props)
+
+    // 创建refs
+    this.pw = React.createRef();
+  }
+  /*
+  提交表单
+  */
+  submit = () => {
+    // 进行总体表单验证
+    this.props.form.validateFields((err,value) => {
+      if (!err) {
+        // 访问refs
+        const imgs = this.pw.current.getImgs();
+        console.log(imgs)
+        alert('发送请求')
+      }
+    })
+  }
+  /*
+  自定义表单验证
+  */
+  validatorPrice = (rule,value,callback) => {
+    console.log(value,typeof value)
+    if (value*1 > 0) { // 验证通过
+      callback();
+    } else {
+      callback('价格指定必须大于0')
+    }
+  }
+  /*
+  初始化options
+  */
+  initOptions = async (categorys) => {
+    const options = categorys.map(c => ({
+      value: c._id,
+      label: c.name,
+      isLeaf: false,
+    }))
+
+    const {isUpdate,product} = this;
+    const {categoryId,pCategoryId} = product;
+    if (isUpdate && pCategoryId !== '0') { // 有二级分类
+      // 发送请求获取二级分类列表
+      const subCategorys = await this.getCategorys(pCategoryId);
+      // 得到二级分类列表
+      const childOptions = subCategorys.map(c => ({
+        value: c._id,
+        label: c.name,
+        isLeaf: true,
+      }))
+
+      // 拿到当前二级分类的父级分类,通过数组的find()
+      const targetOption = options.find(option => option.value === pCategoryId)
+
+      // 将二级分类添加到父级分类上
+      targetOption.children = childOptions;
+    }
+
+    this.setState({
+      options,
+    })
+  }
+  /*
+  获取一级/二级分类列表
+    async函数返回的是一个promise对象，这个promise对象的结果和值取决于async的返回值
+  */
+  getCategorys = async (parentId) => {
+    const result = await reqCategoryList(parentId);
+    if (result.status === 0) {
+      const categorys = result.data;
+      // 判断获取的是几级列表
+      if (parentId === '0') { // 一级列表
+        this.initOptions(categorys);
+      } else { // 二级列表
+        return categorys
+      }
+    } else {
+      message.error('获取分类失败')
+    }
+  }
+  /*
+  加载叶子，动态获取分类列表
+  */
+  loadData = async selectedOptions => {
+    // 获取父级分类项
+    const targetOption = selectedOptions[selectedOptions.length - 1];
+    targetOption.loading = true;
+    // 发送请求获取二级列表
+    const cCategorys = await this.getCategorys(targetOption.value);
+    targetOption.loading = false;
+    // 判断是否获取到cCategorys并且cCategorys是否有值
+    if (cCategorys && cCategorys.length > 0) {
+      targetOption.children = cCategorys.map(c => ({
+        value: c._id,
+        label: c.name,
+        isLeaf: true,
+      }))
+    } else {
+      targetOption.isLeaf = true;
+    }
+
+    // 更新状态
+    this.setState({
+      options: [...this.state.options],
+    });
+  };
+  componentWillMount () {
+    // 判断是否是修改商品
+    if (this.props.location.state) {
+      var {product} = this.props.location.state;
+    }
+    this.isUpdate = !!product;  // 是否是更新商品 强制转换布尔值
+    this.product = product || {};
+}
+  componentDidMount () {
+    // 获取分类列表
+    this.getCategorys('0');
+  }
   render () {
+    const {isUpdate,product} = this;
+    const {categoryId,pCategoryId,imgs} = product;
+    // console.log(product)
+    // 存放商品分类的数组
+    const categoryIds = [];
+    if (isUpdate) {
+      if (pCategoryId === '0') {
+        categoryIds.push(categoryId);
+      } else {
+        categoryIds.push(pCategoryId);
+        categoryIds.push(categoryId);
+      }
+    }
+    
     const title = (
       <span>
         <LinkButton>
@@ -26,87 +173,87 @@ export default class ProductAddUpdate extends Component {
             onClick={() => this.props.history.push('/product')}  
           />
         </LinkButton>
-        <span style={{fontSize: 25,fontWeight: 400}}>添加商品</span>
+        <span style={{fontSize: 25,fontWeight: 400}}>{isUpdate? '修改商品' : '添加商品'}</span>
       </span>
     )
     const formItemLayout = {
       labelCol: { span: 2 },
       wrapperCol: { span: 8 },
     }
-    const options = [
-      {
-        value: 'zhejiang',
-        label: 'Zhejiang',
-        children: [
-          {
-            value: 'hangzhou',
-            label: 'Hangzhou',
-            children: [
-              {
-                value: 'xihu',
-                label: 'West Lake',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        value: 'jiangsu',
-        label: 'Jiangsu',
-        children: [
-          {
-            value: 'nanjing',
-            label: 'Nanjing',
-            children: [
-              {
-                value: 'zhonghuamen',
-                label: 'Zhong Hua Men',
-              },
-            ],
-          },
-        ],
-      },
-    ]
-    const uploadButton = (
-      <div>
-        <Icon type='plus' style={{fontSize: 30}}/>
-        <div className="ant-upload-text">上传图片</div>
-      </div>
-    )
+    const {getFieldDecorator} = this.props.form;
     return (
       <Card title={title}>
         <Form {...formItemLayout}>
           <Item label="商品名称" colon>
-            <Input placeholder='请输入商品名称'/>
+            {
+              getFieldDecorator('name',{
+                initialValue: product.name,
+                rules: [
+                  {required: true,message: '商品名称必须输入'}
+                ]
+              })(
+                <Input placeholder='请输入商品名称'/>
+              )
+            }
           </Item>
           <Item label="商品描述" colon>
-            <TextArea
-              placeholder="请输入商品描述"
-              autoSize={{ minRows: 2, maxRows: 6 }}
-            />
+            {
+              getFieldDecorator('desc',{
+                initialValue: product.desc,
+                rules: [
+                  {required: true,message: '商品描述必须输入'}
+                ]
+              })(
+                <TextArea
+                  placeholder="请输入商品描述"
+                  autoSize={{ minRows: 2, maxRows: 6 }}
+                />
+              )
+            }
           </Item>
           <Item label="商品价格" colon>
-            <Input placeholder='请输入商品价格' addonAfter="元"/>
+            {
+              getFieldDecorator('price',{
+                initialValue: product.price,
+                rules: [
+                  {required: true,message: '商品价格必须输入'},
+                  {validator: this.validatorPrice}
+                ] 
+              })(
+                <Input placeholder='请输入商品价格' addonAfter="元"/>
+              )
+            }
           </Item>
           <Item label="商品分类" colon>
-            <Cascader options={options} placeholder="请选择商品分类" />
+            {
+              getFieldDecorator('categoryIds',{
+                initialValue: categoryIds,
+                rules: [
+                  {required: true,message: '商品分类必指定入'},
+                ] 
+              })(
+                <Cascader
+                  options={this.state.options}
+                  loadData={this.loadData}
+                  placeholder="请选择商品分类"
+                />
+              )
+            }
           </Item>
           <Item label="上传图片" colon>
-            <Upload
-              name="avatar"
-              listType="picture-card"
-              className="avatar-uploader"
-              showUploadList={false}
-              action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-            >
-              {uploadButton}
-            </Upload>
+            <PicturesWall ref={this.pw} imgs={imgs}/>
           </Item>
           <Item>
-            <Button type='primary' style={{marginLeft: 70}}>提交</Button>
+            <Button 
+              type='primary' 
+              style={{marginLeft: 70}} 
+              onClick={this.submit}
+            >提交</Button>
           </Item>
         </Form>
       </Card>
     )
   }
 }
+
+export default Form.create()(ProductAddUpdate)

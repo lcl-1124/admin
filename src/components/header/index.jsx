@@ -57,7 +57,7 @@ class Header extends Component {
         // 删除储存数据
         storageLocal.removeUser() // 本地
         memoryUtils.user = {} // 内存
-        message.error('退出登录')
+        message.success('退出登录')
         // 跳转到登录界面
         this.props.history.replace('/login')
       },
