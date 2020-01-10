@@ -7,6 +7,7 @@ import {Card,List,Icon} from 'antd'
 import './detail.less'
 import LinkButton from '../../../components/linkButton'
 import { reqCategoryInfo } from "../../../api";
+import {BASE_IMG_URL} from '../../../utils/constants' 
 const Item = List.Item;
 
 export default class ProductDetail extends Component {
@@ -71,7 +72,7 @@ export default class ProductDetail extends Component {
                 imgs.map(img => (
                   <img 
                   key={img}
-                    src={img}
+                    src={BASE_IMG_URL + img}
                     alt="img"
                     className="img"
                   />

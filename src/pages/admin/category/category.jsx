@@ -8,6 +8,7 @@ import AddForm from './add-form'
 import UpdateForm from './update-form'
 import LinkButton from '../../../components/linkButton'
 import { reqCategoryList,reqCategoryAdd,reqUpdateCategory } from "../../../api";
+import { PAGE_NUM,DEFAULT_PAGE_SIZE } from "../../../utils/constants"
 
 
 export default class Category extends Component {
@@ -200,7 +201,7 @@ export default class Category extends Component {
             dataSource={parentId === '0' ? categorys : subCategorys} 
             columns={this.columns} 
             loading={loading}
-            pagination={{defaultPageSize: 10,showQuickJumper: true}}
+            pagination={{defaultPageSize: PAGE_NUM,showQuickJumper: true,showSizeChanger: true,pageSizeOptions: DEFAULT_PAGE_SIZE}}
             bordered 
             rowKey='_id'
           />

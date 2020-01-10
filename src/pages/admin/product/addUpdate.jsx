@@ -10,42 +10,68 @@ import {
   Input,
   Form,
   Button,
-  Upload, // 上传
   Cascader, // 级联选择
   message
 } from 'antd'
 
 import PicturesWall from './picturesWall'
+import RichTextEditor from './rich-text-editor'
 import LinkButton from '../../../components/linkButton'
-import { reqCategoryList } from "../../../api";
+import { reqCategoryList,reqUpdateProduct,reqAddProduct } from "../../../api"
 
-const {Item} = Form;
-const { TextArea } = Input;
+const {Item} = Form
+const { TextArea } = Input
 
 
 class ProductAddUpdate extends Component {
 
   state = {
     options: [],
-  };
+  }
 
   constructor (props) {
     super(props)
 
     // 创建refs
-    this.pw = React.createRef();
+    this.pw = React.createRef()
+    this.editor = React.createRef()
   }
   /*
   提交表单
   */
   submit = () => {
     // 进行总体表单验证
-    this.props.form.validateFields((err,value) => {
+    this.props.form.validateFields(async (err,value) => {
       if (!err) {
+        // 请求参数：{_id,categoryId,pCategoryId,name,desc,price,detail,imgs}
         // 访问refs
-        const imgs = this.pw.current.getImgs();
-        console.log(imgs)
-        alert('发送请求')
+        const imgs = this.pw.current.getImgs()
+        const detail = this.editor.current.getDetail()
+        // console.log(imgs,detail,value)
+        const {name,desc,price,categoryIds} = value
+        let categoryId
+        let pCategoryId
+        if (value.categoryIds.length === 1) { // 一级列表
+          categoryId = categoryIds[0]
+          pCategoryId = '0'
+        } else { // 二级列表
+          categoryId = categoryIds[1]
+          pCategoryId = categoryIds[0]
+        }
+        const productInfo = {categoryId,pCategoryId,name,desc,price,imgs,detail} 
+        let result
+        if (this.isUpdate) { // 更新商品
+          const {_id} = this.product
+          productInfo._id = _id
+          result = await reqUpdateProduct(productInfo)
+        } else { // 添加商品
+          result = await reqAddProduct(productInfo)
+        }
+        if (result.status === 0) {
+          message.success(`${this.isUpdate ? '更新' : '添加'}成功`)
+        } else {
+          message.error(`${this.isUpdate ? '更新' : '添加'}失败`)
+        }
       }
     })
   }
@@ -53,9 +79,9 @@ class ProductAddUpdate extends Component {
   自定义表单验证
   */
   validatorPrice = (rule,value,callback) => {
-    console.log(value,typeof value)
+    // console.log(value,typeof value)
     if (value*1 > 0) { // 验证通过
-      callback();
+      callback()
     } else {
       callback('价格指定必须大于0')
     }
@@ -70,11 +96,11 @@ class ProductAddUpdate extends Component {
       isLeaf: false,
     }))
 
-    const {isUpdate,product} = this;
-    const {categoryId,pCategoryId} = product;
+    const {isUpdate,product} = this
+    const {pCategoryId} = product
     if (isUpdate && pCategoryId !== '0') { // 有二级分类
       // 发送请求获取二级分类列表
-      const subCategorys = await this.getCategorys(pCategoryId);
+      const subCategorys = await this.getCategorys(pCategoryId)
       // 得到二级分类列表
       const childOptions = subCategorys.map(c => ({
         value: c._id,
@@ -86,7 +112,7 @@ class ProductAddUpdate extends Component {
       const targetOption = options.find(option => option.value === pCategoryId)
 
       // 将二级分类添加到父级分类上
-      targetOption.children = childOptions;
+      targetOption.children = childOptions
     }
 
     this.setState({
@@ -98,12 +124,12 @@ class ProductAddUpdate extends Component {
     async函数返回的是一个promise对象，这个promise对象的结果和值取决于async的返回值
   */
   getCategorys = async (parentId) => {
-    const result = await reqCategoryList(parentId);
+    const result = await reqCategoryList(parentId)
     if (result.status === 0) {
-      const categorys = result.data;
+      const categorys = result.data
       // 判断获取的是几级列表
       if (parentId === '0') { // 一级列表
-        this.initOptions(categorys);
+        this.initOptions(categorys)
       } else { // 二级列表
         return categorys
       }
@@ -116,11 +142,11 @@ class ProductAddUpdate extends Component {
   */
   loadData = async selectedOptions => {
     // 获取父级分类项
-    const targetOption = selectedOptions[selectedOptions.length - 1];
-    targetOption.loading = true;
+    const targetOption = selectedOptions[selectedOptions.length - 1]
+    targetOption.loading = true
     // 发送请求获取二级列表
-    const cCategorys = await this.getCategorys(targetOption.value);
-    targetOption.loading = false;
+    const cCategorys = await this.getCategorys(targetOption.value)
+    targetOption.loading = false
     // 判断是否获取到cCategorys并且cCategorys是否有值
     if (cCategorys && cCategorys.length > 0) {
       targetOption.children = cCategorys.map(c => ({
@@ -129,38 +155,38 @@ class ProductAddUpdate extends Component {
         isLeaf: true,
       }))
     } else {
-      targetOption.isLeaf = true;
+      targetOption.isLeaf = true
     }
 
     // 更新状态
     this.setState({
       options: [...this.state.options],
-    });
-  };
+    })
+  }
   componentWillMount () {
     // 判断是否是修改商品
     if (this.props.location.state) {
-      var {product} = this.props.location.state;
+      var {product} = this.props.location.state
     }
-    this.isUpdate = !!product;  // 是否是更新商品 强制转换布尔值
-    this.product = product || {};
+    this.isUpdate = !!product  // 是否是更新商品 强制转换布尔值
+    this.product = product || {}
 }
   componentDidMount () {
     // 获取分类列表
-    this.getCategorys('0');
+    this.getCategorys('0')
   }
   render () {
-    const {isUpdate,product} = this;
-    const {categoryId,pCategoryId,imgs} = product;
+    const {isUpdate,product} = this
+    const {categoryId,pCategoryId,imgs,detail} = product
     // console.log(product)
     // 存放商品分类的数组
-    const categoryIds = [];
+    const categoryIds = []
     if (isUpdate) {
       if (pCategoryId === '0') {
-        categoryIds.push(categoryId);
+        categoryIds.push(categoryId)
       } else {
-        categoryIds.push(pCategoryId);
-        categoryIds.push(categoryId);
+        categoryIds.push(pCategoryId)
+        categoryIds.push(categoryId)
       }
     }
     
@@ -180,7 +206,7 @@ class ProductAddUpdate extends Component {
       labelCol: { span: 2 },
       wrapperCol: { span: 8 },
     }
-    const {getFieldDecorator} = this.props.form;
+    const {getFieldDecorator} = this.props.form
     return (
       <Card title={title}>
         <Form {...formItemLayout}>
@@ -242,6 +268,9 @@ class ProductAddUpdate extends Component {
           </Item>
           <Item label="上传图片" colon>
             <PicturesWall ref={this.pw} imgs={imgs}/>
+          </Item>
+          <Item label="商品详情" colon labelCol={{span: 2}} wrapperCol={{span: 20}}>
+            <RichTextEditor ref={this.editor} detail={detail}/>
           </Item>
           <Item>
             <Button 

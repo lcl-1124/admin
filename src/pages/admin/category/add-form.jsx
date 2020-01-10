@@ -44,7 +44,7 @@ class AddForm extends Component {
                 {required: true,message: '分类名称必须指定'}
               ]
             })(
-              <Input placeholder='请输入添加分类名称'/>
+              <Input placeholder='请输入分类名称'/>
             )
           }
         </Item>

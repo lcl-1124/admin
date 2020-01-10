@@ -2,11 +2,10 @@
 添加分类表单组件
 */
 import React,{Component} from 'react'
-import { Form,Select,Input } from "antd";
+import { Form,Input } from "antd"
 import PropTypes from 'prop-types'
 
-const Item = Form.Item;
-const Option = Select.Option;
+const Item = Form.Item
 
 class UpdateForm extends Component {
   static propTypes = {
