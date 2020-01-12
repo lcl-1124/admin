@@ -3,7 +3,7 @@
   1.子组件调用父组件方法：将父组件方法以函数属性的形式传递给自组件进行调用
   2.父组件调用子组件方法：在父组件中通过ref得到子组件标签对象(也就是组件对象)，调用其方法
 */
-import React,{Component} from 'react'
+import React,{PureComponent,} from 'react'
 import {
   Card,
   Icon,
@@ -23,7 +23,7 @@ const {Item} = Form
 const { TextArea } = Input
 
 
-class ProductAddUpdate extends Component {
+class ProductAddUpdate extends PureComponent {
 
   state = {
     options: [],

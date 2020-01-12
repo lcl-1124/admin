@@ -20,7 +20,6 @@ class Login extends Component {
     // 提交前统一验证
     this.props.form.validateFields(async (err, values) => {
       if (!err) {
-        console.log('验证成功', values);
         // 发送ajax请求
         const {username,password} = values
         const result = await reqLogin({username,password})

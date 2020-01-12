@@ -69,6 +69,7 @@ export default class ProductHome extends Component {
   获取商品列表
   */
   getProducts = async (pageNum) => {
+    // 将当前页码保存到this中，让其他函数也可以看到
     this.pageNum = pageNum;
     const {searchName,productType} = this.state;
     // 发送请求获取数据
@@ -139,6 +140,7 @@ export default class ProductHome extends Component {
           loading={loading}
           pagination={{
             total,
+            current: this.pageNum, // 可以确保搜索完成后分页器在第一页
             defaultPageSize:PAGE_NUM,
             showQuickJumper:true,
             onChange: this.getProducts

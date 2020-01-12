@@ -129,16 +129,19 @@ export default class Category extends Component {
         // 拿到请求参数数据
         const categoryId = this.category._id;
         const {categoryName} = value;
-        // 发送异步修改分类请求
-        const result = await reqUpdateCategory({categoryId,categoryName})
-        if (result.status === 0) {
-          // 重新获取列表渲染页面
-          this.getCategoryList()
-        }
         // 清除输入缓存
         this.form.resetFields()
         // 修改状态，取消对话框
         this.setState({showState: 0})
+        // 发送异步修改分类请求
+        const result = await reqUpdateCategory({categoryId,categoryName})
+        if (result.status === 0) {
+          message.success('修改分类成功')
+          // 重新获取列表渲染页面
+          this.getCategoryList()
+        } else {
+          message.error('修改分类失败')
+        }
       }
     })
   }
@@ -150,20 +153,23 @@ export default class Category extends Component {
       if (!err) {
         // 获取请求参数
         const {parentId,categoryName} = value;
+        // 清除输入数据
+        this.form.resetFields()
+        // 隐藏对话框
+        this.setState({showState: 0})
         // 发送异步添加请求
         const result = await reqCategoryAdd({parentId,categoryName})
         if (result.status === 0) {
+          message.success('添加分类成功')
           if (parentId === this.state.parentId) { // 添加的分类就是当前分类
             // 重新获取分类列表
             this.getCategoryList()
           } else if(parentId === '0') {  // 在二级分类添加一级分类，需要更新但不需要显示
             this.getCategoryList('0')
           }
+        } else {
+          message.error('添加分类失败')
         }
-        // 清除输入数据
-        this.form.resetFields()
-        // 隐藏对话框
-        this.setState({showState: 0})
       }
     })
   }
@@ -191,7 +197,7 @@ export default class Category extends Component {
     ); 
     const extra = <Button type='primary' onClick={this.showAddCatgorys}>
                     <Icon type='plus'></Icon>
-                    添加
+                    添加分类
                   </Button>
     const category = this.category ||　{};
     return (
