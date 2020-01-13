@@ -4,6 +4,12 @@ reducer函数模块
 */
 import {combineReducers} from 'redux' // 用来合并多个reducer函数
 
+import {
+  SET_HEADER_TITLE,
+  RECEIVE_USER,
+  ERROR_MSG,
+  RESET_USER
+} from './action-type'
 import storageLocal from "../utils/storageLocal";
 /*
 头部标题的reducer函数
@@ -11,6 +17,8 @@ import storageLocal from "../utils/storageLocal";
 const initHeaderTitle = '首页'
 function headerTitle (state=initHeaderTitle,action) {
   switch (action.type) {
+    case SET_HEADER_TITLE:
+      return action.data
     default:
       return state
   }
@@ -22,6 +30,13 @@ function headerTitle (state=initHeaderTitle,action) {
 const initUser = storageLocal.getUser()
 function user (state=initUser,action) {
   switch (action.type) {
+    case RECEIVE_USER:
+      return action.data
+    case ERROR_MSG:
+      const errMsg = action.data
+      return {...state,errMsg}
+    case RESET_USER:
+      return {}
     default:
       return state
   }

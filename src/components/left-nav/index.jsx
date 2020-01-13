@@ -3,18 +3,20 @@
 */
 import React,{Component} from 'react'
 import { Link,withRouter } from "react-router-dom";
+import { connect } from "react-redux";
 import { Menu, Icon } from 'antd';
 
 import './index.less'
 import logo from '../../assets/images/adminLogo.png'
 import menuList from '../../config/menuConfig'
-import memoryUtils from '../../utils/memoryUtils'
+import { setHeaderTitle } from "../../redux/action";
 
 const { SubMenu } = Menu;
 
 class LeftNav extends Component {
   /*
-  map() + 递归
+  添加左侧菜单项
+    map() + 递归
   */
   handleMenuNode_map = menuList => {
     return menuList.map(item => {
@@ -45,7 +47,8 @@ class LeftNav extends Component {
     })
   }
   /*
-  reduce() + 递归
+  添加左侧菜单项
+    reduce() + 递归
   */
   handleMenuNode = menuList => {
     return menuList.reduce((pre,item) => {
@@ -56,8 +59,14 @@ class LeftNav extends Component {
         // 得到当前选中菜单项标识
         const path = this.props.location.pathname;
         if (!item.children) {
+
+          // 判断当前菜单是否是选中菜单，是则分发action跟新状态显示
+          if (item.key === path || path.indexOf(item.key) === 0) {
+            this.props.setHeaderTitle(item.title)
+          }
+          
           pre.push((
-            <Menu.Item key={item.key}>
+            <Menu.Item key={item.key} onClick={() => this.props.setHeaderTitle(item.title)}>
               <Link to={item.key}>
                 <Icon type={item.icon} />
                 <span>{item.title}</span>
@@ -98,26 +107,13 @@ class LeftNav extends Component {
     返回值为Boolean
   */
   haveAuth = (item) => {
-    //  console.log(memoryUtils)
     /*
-    _id: "5e1ac1ae09ddb81bd8f956e6"
-    username: "user3"
-    password: "e10adc3949ba59abbe56e057f20f883e"
-    phone: "69621626126"
-    email: "415@qq.com"
-    role_id: "5e18690a56f09327fc2fa9ce"
-    create_time: 1578811822722
-    {
-      title: '首页', // 菜单标题名称 
-      key: '/home', // 对应的 path 
-      icon: 'home', // 图标名称 
-    }
     1.当前用户是admin
     2.当前item公开
     3.当前用户有次item权限
     4.当前用户有此item的某个子item的权限
     */
-    const {user} = memoryUtils
+    const {user} = this.props
     const menus = user.role.menus
     const username = user.username
     const {key,isPublic} = item
@@ -173,4 +169,7 @@ class LeftNav extends Component {
 withRouter  高阶组件
   用于将非路由组件包装成路由组件，向其提供三个属性location，history，match
 */
-export default withRouter(LeftNav)
+export default connect(
+  state => ({user: state.user}),
+  {setHeaderTitle}
+)(withRouter(LeftNav))
