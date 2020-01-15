@@ -3,15 +3,14 @@
 */
 import React,{Component} from 'react'
 import { withRouter } from "react-router-dom";
+import {connect} from 'react-redux'
 import { Modal,message } from 'antd';
 
 import './index.less'
 import {formateDate} from '../../utils/dateUtls'
-import memoryUtils from '../../utils/memoryUtils'
-import storageLocal from "../../utils/storageLocal";
 import {reqWeather} from '../../api'
-import menuList from '../../config/menuConfig'
 import LinkButton from '../linkButton'
+import { getLogout } from "../../redux/action";
 
 class Header extends Component {
   state = {
@@ -31,35 +30,13 @@ class Header extends Component {
     const {dayPictureUrl,weather} = await reqWeather('临猗');
     this.setState({dayPictureUrl,weather})
   }
-  // 获取选中菜单项title
-  getTitle = () => {
-    // 1.拿到当前选中菜单项的路径
-    const path = this.props.location.pathname;
-    let title;
-    // 2.遍历
-    menuList.forEach(item => {
-      if (item.key === path) {
-        title = item.title;
-      } else if (item.children) {
-        const cItem = item.children.find(cItem => path.indexOf(cItem.key) === 0)
-        if (cItem) {
-          title = cItem.title;
-        }
-      } 
-    })
-    return title
-  }
   // 退出登录
   handleOut = () => {
     Modal.confirm({
       title: '确定退出么?',
       onOk: () => {
-        // 删除储存数据
-        storageLocal.removeUser() // 本地
-        memoryUtils.user = {} // 内存
         message.success('退出登录')
-        // 跳转到登录界面
-        this.props.history.replace('/login')
+        this.props.getLogout()
       },
       onCancel: () => {
         message.success('退出取消')
@@ -75,8 +52,9 @@ class Header extends Component {
   }
   render () {
     const {currentDate,dayPictureUrl,weather} = this.state;
-    const {username} = memoryUtils.user;
-    const title = this.getTitle();
+    const {username} = this.props.user;
+    // 获取选中菜单项title
+    const title = this.props.headerTitle
     return (
       <div className='header'>
         <div className='header-top'>
@@ -96,4 +74,10 @@ class Header extends Component {
   }
 }
 
-export default withRouter(Header)
+/*
+将UI组件包装成容器组件并向其传递属性
+*/
+export default connect(
+  state => ({headerTitle: state.headerTitle,user: state.user}),
+  {getLogout}
+)(withRouter(Header))

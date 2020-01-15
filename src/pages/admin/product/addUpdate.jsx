@@ -18,6 +18,7 @@ import PicturesWall from './picturesWall'
 import RichTextEditor from './rich-text-editor'
 import LinkButton from '../../../components/linkButton'
 import { reqCategoryList,reqUpdateProduct,reqAddProduct } from "../../../api"
+import memoryUtils from '../../../utils/memoryUtils'
 
 const {Item} = Form
 const { TextArea } = Input
@@ -165,12 +166,10 @@ class ProductAddUpdate extends PureComponent {
   }
   componentWillMount () {
     // 判断是否是修改商品
-    if (this.props.location.state) {
-      var {product} = this.props.location.state
-    }
-    this.isUpdate = !!product  // 是否是更新商品 强制转换布尔值
+    const {product} = memoryUtils
+    this.isUpdate = !!product._id  // 是否是更新商品 强制转换布尔值
     this.product = product || {}
-}
+  }
   componentDidMount () {
     // 获取分类列表
     this.getCategorys('0')

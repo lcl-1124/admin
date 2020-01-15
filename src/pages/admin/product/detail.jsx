@@ -8,6 +8,7 @@ import './detail.less'
 import LinkButton from '../../../components/linkButton'
 import { reqCategoryInfo } from "../../../api";
 import {BASE_IMG_URL} from '../../../utils/constants' 
+import memoryUtils from '../../../utils/memoryUtils'
 const Item = List.Item;
 
 export default class ProductDetail extends Component {
@@ -15,8 +16,16 @@ export default class ProductDetail extends Component {
     pName: '', // 一级分类名称
     cName: '', // 二级分类名称
   }
+  componentWillMount () {
+    const {product} = memoryUtils
+    this.product = product
+  }
   async componentDidMount () {
-    const {categoryId,pCategoryId} = this.props.history.location.state.product;
+    if (!this.product._id) {
+      this.props.history.replace('/product')
+      return
+    }
+    const {categoryId,pCategoryId} = this.product;
     if (pCategoryId === '0') { // 一级分类下的商品
       const result = await reqCategoryInfo(categoryId)
       if (result.status === 0) {
@@ -30,9 +39,7 @@ export default class ProductDetail extends Component {
     }
   }
   render () {
-    
-    const {product} = this.props.history.location.state;
-    const {name,desc,price,detail,imgs} = product;
+    const {name,desc,price,detail,imgs} = this.product;
     const {pName,cName} = this.state;
     const title = (
       <span>
@@ -69,14 +76,14 @@ export default class ProductDetail extends Component {
             <h2 className='left'>商品图片:</h2>
             <p className='right'>
               {
-                imgs.map(img => (
+                imgs? imgs.map(img => (
                   <img 
                   key={img}
                     src={BASE_IMG_URL + img}
                     alt="img"
                     className="img"
                   />
-                ))
+                )) : ''
               }
               
             </p>
