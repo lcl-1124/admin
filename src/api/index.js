@@ -6,7 +6,7 @@ import { message } from "antd";
 
 import ajax from './ajax'
 
-const BASEURL = '';
+const BASEURL = '/api';
 
 // 1.登录
 export const reqLogin = ({username,password}) => ajax(BASEURL + '/login',{username,password},'POST')
