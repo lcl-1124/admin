@@ -2487,7 +2487,7 @@ bindings@^1.5.0:
 
 bizcharts@^3.5.6:
   version "3.5.6"
-  resolved "https://registry.npm.taobao.org/bizcharts/download/bizcharts-3.5.6.tgz?cache=0&sync_timestamp=1576151599144&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fbizcharts%2Fdownload%2Fbizcharts-3.5.6.tgz#721aec217a7e9fda4abd186e7be81161e8bb97df"
+  resolved "https://registry.npm.taobao.org/bizcharts/download/bizcharts-3.5.6.tgz#721aec217a7e9fda4abd186e7be81161e8bb97df"
   integrity sha1-chrsIXp+n9pKvRhue+gRYei7l98=
   dependencies:
     "@antv/g2" "3.5.9"

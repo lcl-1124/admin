@@ -28,7 +28,6 @@ export default class Pie extends React.Component {
   updateData = () => {
     let {scales,stores} = this.state
 
-    
     scales = scales.map(scale => {
       scale.value = Math.round(Math.random()*520+80)
       return scale

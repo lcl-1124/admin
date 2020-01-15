@@ -7,6 +7,7 @@ import {Card, Select, Icon, Button, Input, Table} from 'antd'
 import LinkButton from '../../../components/linkButton'
 import { reqProductList,reqSearchProduct,reqUpdateStatusProduct } from "../../../api"
 import {PAGE_NUM} from '../../../utils/constants'
+import memoryUtils from '../../../utils/memoryUtils'
 
 const Option = Select.Option;
 
@@ -58,8 +59,8 @@ export default class ProductHome extends Component {
         width: 100,
         render: (product) => (
           <span>
-            <LinkButton onClick={() => this.props.history.push('/product/detail',{product})}>详情</LinkButton>
-            <LinkButton onClick={() => this.props.history.push('/product/addUpdate',{product})}>修改</LinkButton>
+            <LinkButton onClick={() => this.showDetail(product)}>详情</LinkButton>
+            <LinkButton onClick={() => this.showUpdate(product)}>修改</LinkButton>
           </span>
         ),
       },
@@ -97,6 +98,24 @@ export default class ProductHome extends Component {
     if (result.status === 0) {
       this.getProducts(this.pageNum)
     }
+  }
+  /*
+  显示商品详情页
+  */
+  showDetail = (product) => {
+    // 将商品数据爆粗拿到内存
+    memoryUtils.product = product
+    // 跳转到商品详情页(HashRouter)
+    this.props.history.push('/product/detail')
+  }
+  /*
+  显示商品修改页
+  */
+  showUpdate = (product) => {
+    // 将商品数据爆粗拿到内存
+    memoryUtils.product = product
+    // 跳转到商品修改页(HashRouter)
+    this.props.history.push('/product/addUpdate')
   }
   componentWillMount () {
     this.setColumns()

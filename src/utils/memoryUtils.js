@@ -1,6 +1,7 @@
 /*
-内存模块
+暴露需要让多个组件看到的数据
 */
-export default {
-  user: {}
+const memoryUtils = {
+  product: {}, // 单个商品信息
 }
+export default memoryUtils

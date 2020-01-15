@@ -14,7 +14,7 @@ import storageLocal from "../utils/storageLocal";
 /*
 头部标题的reducer函数
 */
-const initHeaderTitle = '首页'
+const initHeaderTitle = ''
 function headerTitle (state=initHeaderTitle,action) {
   switch (action.type) {
     case SET_HEADER_TITLE:

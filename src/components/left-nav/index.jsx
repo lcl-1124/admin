@@ -146,7 +146,7 @@ class LeftNav extends Component {
     }
     return (
       <div className='left-nav'>
-        <Link to='/home' className='left-nav-header'>
+        <Link to='/' className='left-nav-header'>
           <img src={logo} alt="logo"/>
           <h2>后台管理</h2>
         </Link>
