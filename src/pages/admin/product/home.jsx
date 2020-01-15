@@ -103,7 +103,7 @@ export default class ProductHome extends Component {
   显示商品详情页
   */
   showDetail = (product) => {
-    // 将商品数据爆粗拿到内存
+    // 将商品数据储存到内存
     memoryUtils.product = product
     // 跳转到商品详情页(HashRouter)
     this.props.history.push('/product/detail')
@@ -112,7 +112,7 @@ export default class ProductHome extends Component {
   显示商品修改页
   */
   showUpdate = (product) => {
-    // 将商品数据爆粗拿到内存
+    // 将商品数据储存到内存
     memoryUtils.product = product
     // 跳转到商品修改页(HashRouter)
     this.props.history.push('/product/addUpdate')
