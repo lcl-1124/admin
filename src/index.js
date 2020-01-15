@@ -4,13 +4,13 @@
 
 import React from 'react'
 import ReactDom from 'react-dom'
-// 引入全部样式
-// import 'antd/dist/antd.css'
+import { Provider } from 'react-redux'; // react插件，简化redux使用，解决redux与react高耦合,包装UI组件并向其传递store属性
 
 import App from './App'
-import memoryUtils from './utils/memoryUtils'
-import storageLocal from './utils/storageLocal'
+import store from './redux/store'
 
-memoryUtils.user = storageLocal.getUser()
-
-ReactDom.render(<App />,document.getElementById('root'))
+ReactDom.render((
+  <Provider store={store}>
+    <App/>
+  </Provider>
+),document.getElementById('root'))

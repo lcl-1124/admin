@@ -2,49 +2,31 @@
 管理路由组件
 */
 import React,{Component} from 'react'
-import { Form, Icon, Input, Button ,message} from 'antd';
+import { connect } from "react-redux"
+import { Form, Icon, Input, Button } from 'antd'
 
-import "./login.less";
+import { getLogin } from "../../redux/action"
+import "./login.less"
 import logo from '../../assets/images/adminLogo.png'
-import {reqLogin} from "../../api";
-import memoryUtils from '../../utils/memoryUtils'
-import storageLocal from '../../utils/storageLocal'
-import { Redirect } from 'react-router';
+import { Redirect } from 'react-router'
 
 class Login extends Component {
 
   handleSubmit = (event) => {
     // 阻止事件默认行为
-    event.preventDefault();
+    event.preventDefault()
 
     // 提交前统一验证
     this.props.form.validateFields(async (err, values) => {
       if (!err) {
         // 发送ajax请求
         const {username,password} = values
-        const result = await reqLogin({username,password})
-        if (result.status === 0) { // 登录成功
-          message.success('登录成功')
-          const user = result.data;
-          // 保存到内存中
-          memoryUtils.user = user;
-          // 保存到本地
-          storageLocal.saveUser(user)
-          // 跳转到管理界面(不需要再回退回来)
-          this.props.history.replace('/')
-          // console.log(memoryUtils.user)
-        } else { // 登录失败
-          message.error('登录失败')
-        }
+        this.props.getLogin(username,password)
+        this.props.history.replace('/home')
       } else {
         console.log('验证失败')
       }
-    });
-    // 得到from对象
-    // const form = this.props.form;
-    // // 拿到输入数据
-    // const values = form.getFieldsValue();
-    // console.log(values)
+    })
   }
 
   validatorPwd = (rule, value, callback) => {
@@ -62,14 +44,12 @@ class Login extends Component {
   }
   
   render () {
-    
-    const user = memoryUtils.user;
-    if (user._id) {
-      return <Redirect to='/'/>
+    const user = this.props.user
+    if (user && user._id) {
+      return <Redirect to='/home'/>
     }
-
-    const form = this.props.form;
-    const { getFieldDecorator } = form;
+    const form = this.props.form
+    const { getFieldDecorator } = form
     return (
       <div className="loginContainer">
         <header className="loginHeader">
@@ -77,6 +57,7 @@ class Login extends Component {
           <h1>React项目：后台管理系统</h1>
         </header>
         <section className="loginContent">
+          <div className={user.errMsg ? 'error-msg show' : 'error-msg'}>{user.errMsg}</div>
           <h2>用户登录</h2>
           <Form onSubmit={this.handleSubmit} className="login-form">
             <Form.Item>
@@ -129,4 +110,7 @@ class Login extends Component {
 新组件会向From组件传递一个强大的对象属性：from
 */
 const WrapLogin = Form.create()(Login)
-export default WrapLogin
+export default connect(
+  state => ({user: state.user}),
+  {getLogin}
+)(WrapLogin)
